@@ -1,0 +1,175 @@
+{
+    "settings": {
+        "logo_text": "DIGI STORE",
+        "logo_image": "uploads\/img_69c9fc5f0fbc7_2a35c5c8.png",
+        "admin_pin": "1122",
+        "header_buttons": []
+    },
+    "welcome_popup": {
+        "enabled": false,
+        "title": "Welcome!",
+        "message": "Check out our latest products.",
+        "buttons": []
+    },
+    "hero_images": [
+        {
+            "id": "hero1",
+            "url": "https:\/\/images.unsplash.com\/photo-1607082348824-0a96f2a4b9da?w=1280&h=720&fit=crop",
+            "caption": "Premium Collection 2025"
+        },
+        {
+            "id": "hero2",
+            "url": "https:\/\/images.unsplash.com\/photo-1441986300917-64674bd600d8?w=1280&h=720&fit=crop",
+            "caption": "Exclusive Deals Every Day"
+        },
+        {
+            "id": "hero3",
+            "url": "https:\/\/images.unsplash.com\/photo-1472851294608-062f824d29cc?w=1280&h=720&fit=crop",
+            "caption": "Shop the Latest Trends"
+        }
+    ],
+    "stories": [
+        {
+            "id": "story1",
+            "image": "https:\/\/images.unsplash.com\/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop",
+            "title": "New Arrivals",
+            "link": "",
+            "button_text": "View",
+            "button_link": ""
+        },
+        {
+            "id": "story2",
+            "image": "https:\/\/images.unsplash.com\/photo-1585386959984-a4155224a1ad?w=300&h=300&fit=crop",
+            "title": "Beauty",
+            "link": "",
+            "button_text": "Shop Now",
+            "button_link": ""
+        },
+        {
+            "id": "story3",
+            "image": "https:\/\/images.unsplash.com\/photo-1542291026-7eec264c27ff?w=300&h=300&fit=crop",
+            "title": "Footwear",
+            "link": "",
+            "button_text": "Explore",
+            "button_link": ""
+        },
+        {
+            "id": "story4",
+            "image": "https:\/\/images.unsplash.com\/photo-1526170375885-4d8ecf77b99f?w=300&h=300&fit=crop",
+            "title": "Electronics",
+            "link": "",
+            "button_text": "Discover",
+            "button_link": ""
+        },
+        {
+            "id": "story5",
+            "image": "https:\/\/images.unsplash.com\/photo-1489987707025-afc232f7ea0f?w=300&h=300&fit=crop",
+            "title": "Fashion",
+            "link": "",
+            "button_text": "See All",
+            "button_link": ""
+        }
+    ],
+    "categories": [
+        {
+            "id": "cat1",
+            "name": "Electronics",
+            "icon": "💻"
+        },
+        {
+            "id": "cat2",
+            "name": "Fashion",
+            "icon": "👗"
+        },
+        {
+            "id": "cat3",
+            "name": "Beauty",
+            "icon": "✨"
+        },
+        {
+            "id": "cat4",
+            "name": "Footwear",
+            "icon": "👟"
+        },
+        {
+            "id": "cat5",
+            "name": "Accessories",
+            "icon": "⌚"
+        },
+        {
+            "id": "cat6",
+            "name": "Home & Living",
+            "icon": "🏠"
+        }
+    ],
+    "products": [
+        {
+            "id": "prod1",
+            "title": "Luxury Smart Watch",
+            "short_description": "Premium timepiece with advanced features",
+            "description": "Experience the perfect blend of luxury and technology. This smart watch features a stunning AMOLED display, health monitoring, GPS tracking, and 7-day battery life. Crafted from premium stainless steel with a sapphire crystal display.",
+            "image": "https:\/\/images.unsplash.com\/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop",
+            "price_usd": 299,
+            "discount": 15,
+            "sold": 142,
+            "category": "Accessories",
+            "custom_buttons": []
+        },
+        {
+            "id": "prod2",
+            "title": "Designer Sneakers",
+            "short_description": "Limited edition comfort meets style",
+            "description": "Walk in unmatched style with these limited edition designer sneakers. Featuring premium leather upper, cushioned insole, and a bold contemporary design. Available in multiple colorways.",
+            "image": "https:\/\/images.unsplash.com\/photo-1542291026-7eec264c27ff?w=600&h=600&fit=crop",
+            "price_usd": 185,
+            "discount": 0,
+            "sold": 89,
+            "category": "Footwear",
+            "custom_buttons": []
+        },
+        {
+            "id": "prod3",
+            "title": "Wireless Earbuds Pro",
+            "short_description": "Studio-quality sound, noise cancellation",
+            "description": "Immerse yourself in pure audio bliss with these pro-grade wireless earbuds. Active noise cancellation, 30-hour total battery life, IPX5 water resistance, and crystal-clear call quality make these the perfect everyday companion.",
+            "image": "https:\/\/images.unsplash.com\/photo-1606220945770-b5b6c2c55bf1?w=600&h=600&fit=crop",
+            "price_usd": 149,
+            "discount": 20,
+            "sold": 314,
+            "category": "Electronics",
+            "custom_buttons": []
+        },
+        {
+            "id": "prod4",
+            "title": "Premium Skincare Set",
+            "short_description": "Complete 5-step skincare ritual",
+            "description": "Transform your skincare routine with this luxurious 5-piece set. Formulated with rare botanical extracts, hyaluronic acid, and vitamin C complex. Suitable for all skin types. Includes cleanser, toner, serum, moisturizer, and SPF50 sunscreen.",
+            "image": "https:\/\/images.unsplash.com\/photo-1585386959984-a4155224a1ad?w=600&h=600&fit=crop",
+            "price_usd": 89,
+            "discount": 10,
+            "sold": 267,
+            "category": "Beauty",
+            "custom_buttons": []
+        }
+    ],
+    "payment": {
+        "crypto": {
+            "enabled": true,
+            "qr_image": "",
+            "coin": "USDT",
+            "network": "TRC20",
+            "wallet_address": "TJYeasdfghjklzxcvbnm1234567890AB",
+            "instructions": "1. Open your crypto wallet app\n2. Send the exact amount shown\n3. Take a screenshot of successful transfer\n4. Click 'Enter Details' and upload screenshot"
+        },
+        "easypaisa": {
+            "enabled": true,
+            "image": "",
+            "account_name": "LUXE STORE",
+            "iban": "PK36MEZN0001010123456789",
+            "account_number": "03001234567",
+            "instructions": "1. Open EasyPaisa or any banking app\n2. Send the exact amount to the IBAN or mobile number\n3. Take a screenshot of successful transfer\n4. Click 'Enter Details' and upload screenshot"
+        },
+        "extra_fields": []
+    },
+    "orders": []
+}
