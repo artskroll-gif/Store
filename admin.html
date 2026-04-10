@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — LUXE STORE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --gold-dark: #9a7a2e;
+  --bg: #0d0d0f;
+  --surface: #141418;
+  --surface2: #1c1c22;
+  --surface3: #242430;
+  --border: #2a2a35;
+  --text: #e8e4d9;
+  --text-muted: #7a7880;
+  --danger: #e05c5c;
+  --success: #5cb87a;
+  --info: #5c8fe0;
+  --warn: #e0a85c;
+  --radius: 10px;
+  --transition: 0.25s cubic-bezier(.4,0,.2,1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Jost',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow-x:hidden; }
+
+/* ── PIN SCREEN ──────────────────────────────────────────────── */
+#pin-screen {
+  position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column;
+  align-items:center; justify-content:center; z-index:9999;
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,.12) 0%, transparent 70%);
+}
+.pin-logo { font-family:'Cinzel',serif; font-size:2rem; color:var(--gold); letter-spacing:.3em; margin-bottom:.5rem; }
+.pin-sub { color:var(--text-muted); font-size:.9rem; letter-spacing:.1em; margin-bottom:3rem; }
+.pin-box {
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:2.5rem; width:340px; max-width:90vw; text-align:center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.6);
+}
+.pin-label { font-size:.85rem; color:var(--text-muted); letter-spacing:.15em; margin-bottom:1.5rem; text-transform:uppercase; }
+.pin-input {
+  width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:8px;
+  color:var(--text); font-size:1.5rem; letter-spacing:.5em; text-align:center;
+  padding:.9rem 1rem; font-family:'Jost',sans-serif; transition:border-color var(--transition);
+  outline:none;
+}
+.pin-input:focus { border-color:var(--gold); }
+.pin-input.shake { animation:shake .4s; }
+.pin-btn {
+  width:100%; margin-top:1.5rem; padding:1rem; background:var(--gold); color:#0d0d0f;
+  border:none; border-radius:8px; font-family:'Cinzel',serif; font-size:1rem;
+  font-weight:700; letter-spacing:.15em; cursor:pointer; transition:background var(--transition);
+}
+.pin-btn:hover { background:var(--gold-light); }
+.pin-error { color:var(--danger); font-size:.85rem; margin-top:1rem; min-height:1.2em; }
+
+/* ── ADMIN LAYOUT ────────────────────────────────────────────── */
+.admin-header {
+  position:fixed; top:0; left:0; right:0; height:64px; background:var(--surface);
+  border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;
+  padding:0 1.5rem; z-index:100;
+}
+.admin-logo { font-family:'Cinzel',serif; font-size:1.1rem; color:var(--gold); letter-spacing:.2em; }
+.hamburger-btn {
+  background:none; border:1px solid var(--border); border-radius:8px; padding:.5rem .8rem;
+  cursor:pointer; display:flex; flex-direction:column; gap:4px; transition:border-color var(--transition);
+}
+.hamburger-btn:hover { border-color:var(--gold); }
+.hamburger-btn span { display:block; width:20px; height:2px; background:var(--text); border-radius:2px; transition:var(--transition); }
+
+/* ── SIDEBAR ─────────────────────────────────────────────────── */
+.sidebar {
+  position:fixed; top:64px; right:0; width:280px; height:calc(100vh - 64px);
+  background:var(--surface); border-left:1px solid var(--border); z-index:99;
+  transform:translateX(100%); transition:transform var(--transition); overflow-y:auto;
+}
+.sidebar.open { transform:translateX(0); }
+.sidebar-overlay { position:fixed; inset:0; top:64px; background:rgba(0,0,0,.5); z-index:98; display:none; }
+.sidebar-overlay.show { display:block; }
+.nav-item {
+  display:flex; align-items:center; gap:.75rem; padding:1rem 1.5rem; cursor:pointer;
+  border-bottom:1px solid var(--border); transition:background var(--transition); user-select:none;
+  font-size:.9rem; letter-spacing:.05em;
+}
+.nav-item:hover { background:var(--surface2); }
+.nav-item.active { background:var(--surface2); color:var(--gold); }
+.nav-icon { font-size:1.1rem; }
+.nav-pin-change {
+  margin:1rem 1.5rem; padding:.75rem 1rem; background:var(--surface3); border:1px solid var(--border);
+  border-radius:var(--radius); cursor:pointer; text-align:center; font-size:.8rem; color:var(--text-muted);
+  transition:border-color var(--transition);
+}
+.nav-pin-change:hover { border-color:var(--gold); color:var(--gold); }
+
+/* ── MAIN CONTENT ────────────────────────────────────────────── */
+main { margin-top:64px; padding:2rem; min-height:calc(100vh - 64px); }
+.section-panel { display:none; animation:fadeIn .3s; }
+.section-panel.active { display:block; }
+.panel-header { margin-bottom:2rem; }
+.panel-title { font-family:'Cinzel',serif; font-size:1.6rem; color:var(--gold); letter-spacing:.1em; }
+.panel-desc { color:var(--text-muted); font-size:.9rem; margin-top:.4rem; }
+
+/* ── CARDS / GRIDS ───────────────────────────────────────────── */
+.card {
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:1.5rem; margin-bottom:1.5rem;
+}
+.card-title { font-size:.85rem; text-transform:uppercase; letter-spacing:.15em; color:var(--gold); margin-bottom:1.2rem; font-weight:600; }
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+@media(max-width:768px) { .grid-2,.grid-3 { grid-template-columns:1fr; } }
+
+/* ── FORM ELEMENTS ───────────────────────────────────────────── */
+.form-group { margin-bottom:1.2rem; }
+.form-label { display:block; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:.5rem; }
+.form-input, .form-textarea, .form-select {
+  width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:8px;
+  color:var(--text); font-family:'Jost',sans-serif; font-size:.95rem; padding:.75rem 1rem;
+  outline:none; transition:border-color var(--transition);
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color:var(--gold); }
+.form-textarea { resize:vertical; min-height:100px; }
+.form-select option { background:var(--surface2); }
+
+/* ── BUTTONS ─────────────────────────────────────────────────── */
+.btn {
+  padding:.65rem 1.3rem; border:none; border-radius:8px; cursor:pointer;
+  font-family:'Jost',sans-serif; font-size:.9rem; font-weight:500; letter-spacing:.05em;
+  transition:var(--transition); display:inline-flex; align-items:center; gap:.5rem;
+}
+.btn-gold { background:var(--gold); color:#0d0d0f; }
+.btn-gold:hover { background:var(--gold-light); }
+.btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+.btn-outline:hover { border-color:var(--gold); color:var(--gold); }
+.btn-danger { background:rgba(224,92,92,.15); border:1px solid var(--danger); color:var(--danger); }
+.btn-danger:hover { background:var(--danger); color:#fff; }
+.btn-success { background:rgba(92,184,122,.15); border:1px solid var(--success); color:var(--success); }
+.btn-success:hover { background:var(--success); color:#fff; }
+.btn-sm { padding:.4rem .85rem; font-size:.82rem; }
+.btn-full { width:100%; justify-content:center; }
+
+/* ── ITEM CARDS ──────────────────────────────────────────────── */
+.item-card {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+  padding:1rem; display:flex; align-items:center; gap:1rem; margin-bottom:.75rem;
+  transition:border-color var(--transition);
+}
+.item-card:hover { border-color:var(--border); }
+.item-thumb { width:60px; height:60px; object-fit:cover; border-radius:6px; flex-shrink:0; background:var(--surface3); }
+.item-info { flex:1; min-width:0; }
+.item-name { font-weight:500; font-size:.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.item-meta { font-size:.8rem; color:var(--text-muted); margin-top:.2rem; }
+.item-actions { display:flex; gap:.5rem; flex-shrink:0; }
+
+/* ── ORDERS TABLE ────────────────────────────────────────────── */
+.orders-table { width:100%; border-collapse:collapse; }
+.orders-table th { text-align:left; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-muted); padding:.75rem 1rem; border-bottom:1px solid var(--border); }
+.orders-table td { padding:.9rem 1rem; border-bottom:1px solid var(--border); font-size:.9rem; vertical-align:middle; }
+.orders-table tr:hover td { background:var(--surface2); }
+.status-badge {
+  display:inline-block; padding:.25rem .75rem; border-radius:20px; font-size:.78rem; font-weight:500; letter-spacing:.05em;
+}
+.status-pending { background:rgba(224,168,92,.15); color:var(--warn); border:1px solid rgba(224,168,92,.3); }
+.status-accepted { background:rgba(92,184,122,.15); color:var(--success); border:1px solid rgba(92,184,122,.3); }
+.status-rejected { background:rgba(224,92,92,.15); color:var(--danger); border:1px solid rgba(224,92,92,.3); }
+
+/* ── HERO SLIDER PREVIEW ─────────────────────────────────────── */
+.hero-preview { position:relative; width:100%; aspect-ratio:16/9; background:var(--surface3); border-radius:var(--radius); overflow:hidden; margin-bottom:1rem; }
+.hero-preview img { width:100%; height:100%; object-fit:cover; }
+.hero-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:1rem; }
+.hero-item { position:relative; aspect-ratio:16/9; border-radius:8px; overflow:hidden; border:1px solid var(--border); }
+.hero-item img { width:100%; height:100%; object-fit:cover; }
+.hero-item-overlay { position:absolute; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:flex-end; padding:.5rem; opacity:0; transition:opacity var(--transition); }
+.hero-item:hover .hero-item-overlay { opacity:1; }
+.hero-item-caption { font-size:.75rem; color:#fff; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* ── FILE UPLOAD ─────────────────────────────────────────────── */
+.file-upload-area {
+  border:2px dashed var(--border); border-radius:var(--radius); padding:2rem;
+  text-align:center; cursor:pointer; transition:border-color var(--transition), background var(--transition);
+}
+.file-upload-area:hover { border-color:var(--gold); background:rgba(201,168,76,.04); }
+.file-upload-area input { display:none; }
+.upload-icon { font-size:2rem; margin-bottom:.5rem; }
+.upload-text { font-size:.9rem; color:var(--text-muted); }
+
+/* ── MODAL ───────────────────────────────────────────────────── */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.75); z-index:1000; display:none;
+  align-items:center; justify-content:center; padding:1rem; backdrop-filter:blur(4px);
+}
+.modal-overlay.show { display:flex; }
+.modal {
+  background:var(--surface); border:1px solid var(--border); border-radius:16px;
+  padding:2rem; width:100%; max-width:560px; max-height:90vh; overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,.6); animation:slideUp .3s;
+}
+.modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
+.modal-title { font-family:'Cinzel',serif; font-size:1.2rem; color:var(--gold); }
+.modal-close { background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer; line-height:1; padding:.2rem; }
+.modal-close:hover { color:var(--text); }
+.modal-footer { display:flex; gap:.75rem; justify-content:flex-end; margin-top:1.5rem; }
+
+/* ── TOGGLE ──────────────────────────────────────────────────── */
+.toggle-wrap { display:flex; align-items:center; gap:.75rem; }
+.toggle { position:relative; width:44px; height:24px; flex-shrink:0; }
+.toggle input { opacity:0; width:0; height:0; }
+.toggle-slider {
+  position:absolute; inset:0; background:var(--surface3); border-radius:24px; cursor:pointer;
+  transition:background var(--transition);
+}
+.toggle-slider:before {
+  content:''; position:absolute; width:18px; height:18px; background:#fff; border-radius:50%;
+  left:3px; top:3px; transition:transform var(--transition);
+}
+.toggle input:checked + .toggle-slider { background:var(--gold); }
+.toggle input:checked + .toggle-slider:before { transform:translateX(20px); }
+
+/* ── ALERT ───────────────────────────────────────────────────── */
+.alert {
+  position:fixed; top:80px; right:1.5rem; padding:.9rem 1.4rem; border-radius:var(--radius);
+  font-size:.9rem; font-weight:500; z-index:2000; animation:slideInRight .3s;
+  max-width:320px; box-shadow:0 8px 24px rgba(0,0,0,.4);
+}
+.alert-success { background:rgba(92,184,122,.15); border:1px solid var(--success); color:var(--success); }
+.alert-error { background:rgba(224,92,92,.15); border:1px solid var(--danger); color:var(--danger); }
+
+/* ── ANIMATIONS ──────────────────────────────────────────────── */
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes slideInRight { from{transform:translateX(20px);opacity:0} to{transform:translateX(0);opacity:1} }
+
+/* ── ORDER DETAIL MODAL ──────────────────────────────────────── */
+.order-detail-row { display:flex; gap:1rem; padding:.6rem 0; border-bottom:1px solid var(--border); }
+.order-detail-label { width:140px; font-size:.8rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.08em; flex-shrink:0; padding-top:.1rem; }
+.order-detail-value { flex:1; font-size:.92rem; word-break:break-all; }
+
+/* ── SCROLLBAR ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:var(--surface); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:var(--gold-dark); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     PIN SCREEN
+══════════════════════════════════════════════════ -->
+<div id="pin-screen">
+  <div class="pin-logo">LUXE STORE</div>
+  <div class="pin-sub">Administration Portal</div>
+  <div class="pin-box">
+    <div class="pin-label">Enter Admin PIN</div>
+    <input type="password" class="pin-input" id="pin-input" maxlength="8" placeholder="••••" autocomplete="off">
+    <button class="pin-btn" onclick="verifyPin()">UNLOCK</button>
+    <div class="pin-error" id="pin-error"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     ADMIN HEADER
+══════════════════════════════════════════════════ -->
+<header class="admin-header" id="admin-header" style="display:none;">
+  <div class="admin-logo">LUXE ADMIN</div>
+  <button class="hamburger-btn" id="hamburger-btn" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<!-- ══════════════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════════════ -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+<nav class="sidebar" id="sidebar">
+  <div class="nav-item active" data-section="header" onclick="showSection('header')">
+    <span class="nav-icon">🏷️</span> Header & Branding
+  </div>
+  <div class="nav-item" data-section="welcome" onclick="showSection('welcome')">
+    <span class="nav-icon">👋</span> Welcome Popup
+  </div>
+  <div class="nav-item" data-section="hero" onclick="showSection('hero')">
+    <span class="nav-icon">🖼️</span> Hero Slider
+  </div>
+  <div class="nav-item" data-section="stories" onclick="showSection('stories')">
+    <span class="nav-icon">📖</span> Stories
+  </div>
+  <div class="nav-item" data-section="categories" onclick="showSection('categories')">
+    <span class="nav-icon">🗂️</span> Categories
+  </div>
+  <div class="nav-item" data-section="products" onclick="showSection('products')">
+    <span class="nav-icon">📦</span> Products
+  </div>
+  <div class="nav-item" data-section="payment" onclick="showSection('payment')">
+    <span class="nav-icon">💳</span> Payment Methods
+  </div>
+  <div class="nav-item" data-section="orders" onclick="showSection('orders')">
+    <span class="nav-icon">🧾</span> Orders
+    <span id="pending-badge" style="margin-left:auto;background:var(--gold);color:#000;border-radius:20px;padding:.15rem .55rem;font-size:.75rem;display:none;"></span>
+  </div>
+  <div class="nav-pin-change" onclick="openChangePinModal()">🔑 Change Admin PIN</div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════════════════ -->
+<main id="admin-main" style="display:none;">
+
+  <!-- HEADER SECTION -->
+  <div class="section-panel active" id="section-header">
+    <div class="panel-header">
+      <div class="panel-title">Header & Branding</div>
+      <div class="panel-desc">Manage logo and header navigation buttons</div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Logo Settings</div>
+        <div class="form-group">
+          <label class="form-label">Logo Text</label>
+          <input class="form-input" id="logo-text" placeholder="LUXE STORE">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Logo Image (optional)</label>
+          <div class="file-upload-area" onclick="document.getElementById('logo-file').click()">
+            <input type="file" id="logo-file" accept="image/*" onchange="uploadLogo(this)">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-text">Click to upload logo image</div>
+          </div>
+          <div id="logo-preview" style="margin-top:.75rem;"></div>
+        </div>
+        <button class="btn btn-gold" onclick="saveBranding()">Save Branding</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Header Buttons</div>
+        <div id="header-buttons-list"></div>
+        <button class="btn btn-outline btn-full" onclick="openAddHeaderBtn()" style="margin-top:1rem;">+ Add Button</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WELCOME POPUP SECTION -->
+  <div class="section-panel" id="section-welcome">
+    <div class="panel-header">
+      <div class="panel-title">Welcome Popup</div>
+      <div class="panel-desc">Show a popup to visitors when they first open the store</div>
+    </div>
+    <div class="card">
+      <div class="toggle-wrap" style="margin-bottom:1.5rem;">
+        <label class="toggle"><input type="checkbox" id="welcome-enabled"><span class="toggle-slider"></span></label>
+        <span>Enable Welcome Popup</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Popup Title</label>
+        <input class="form-input" id="welcome-title" placeholder="Welcome to our store!">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Message</label>
+        <textarea class="form-textarea" id="welcome-message" placeholder="Enter welcome message..."></textarea>
+      </div>
+      <div class="card-title" style="margin-bottom:.75rem;">Popup Buttons</div>
+      <div id="welcome-buttons-list"></div>
+      <button class="btn btn-outline" onclick="addWelcomeBtn()" style="margin-top:.75rem;">+ Add Button</button>
+      <br><br>
+      <button class="btn btn-gold" onclick="saveWelcomePopup()">Save Welcome Popup</button>
+    </div>
+  </div>
+
+  <!-- HERO SECTION -->
+  <div class="section-panel" id="section-hero">
+    <div class="panel-header">
+      <div class="panel-title">Hero Slider</div>
+      <div class="panel-desc">Manage hero images (16:9 ratio recommended)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Add Hero Image</div>
+      <div class="grid-2">
+        <div>
+          <div class="form-group">
+            <label class="form-label">Image URL</label>
+            <input class="form-input" id="hero-url" placeholder="https://...">
+          </div>
+          <div class="form-group" style="text-align:center;color:var(--text-muted);font-size:.85rem;">— or upload —</div>
+          <div class="file-upload-area" onclick="document.getElementById('hero-file').click()">
+            <input type="file" id="hero-file" accept="image/*">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">Upload from device</div>
+          </div>
+        </div>
+        <div>
+          <div class="form-group">
+            <label class="form-label">Caption</label>
+            <input class="form-input" id="hero-caption" placeholder="Enter caption...">
+          </div>
+          <button class="btn btn-gold btn-full" onclick="addHeroImage()" style="margin-top:1rem;">Add Image</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Current Hero Images</div>
+      <div class="hero-list" id="hero-list"></div>
+    </div>
+  </div>
+
+  <!-- STORIES SECTION -->
+  <div class="section-panel" id="section-stories">
+    <div class="panel-header">
+      <div class="panel-title">Stories</div>
+      <div class="panel-desc">Instagram-style story circles shown on the frontend</div>
+    </div>
+    <button class="btn btn-gold" onclick="openStoryModal()" style="margin-bottom:1.5rem;">+ Add Story</button>
+    <div id="stories-list"></div>
+  </div>
+
+  <!-- CATEGORIES SECTION -->
+  <div class="section-panel" id="section-categories">
+    <div class="panel-header">
+      <div class="panel-title">Categories</div>
+      <div class="panel-desc">Manage product categories</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Add Category</div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Category Name</label>
+          <input class="form-input" id="cat-name" placeholder="e.g. Electronics">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Icon (Emoji)</label>
+          <input class="form-input" id="cat-icon" placeholder="💻" style="font-size:1.3rem;">
+        </div>
+      </div>
+      <button class="btn btn-gold" onclick="addCategory()">Add Category</button>
+    </div>
+    <div id="categories-list"></div>
+  </div>
+
+  <!-- PRODUCTS SECTION -->
+  <div class="section-panel" id="section-products">
+    <div class="panel-header">
+      <div class="panel-title">Products</div>
+      <div class="panel-desc">Manage your product catalog</div>
+    </div>
+    <button class="btn btn-gold" onclick="openProductModal()" style="margin-bottom:1.5rem;">+ Add Product</button>
+    <div id="products-list"></div>
+  </div>
+
+  <!-- PAYMENT SECTION -->
+  <div class="section-panel" id="section-payment">
+    <div class="panel-header">
+      <div class="panel-title">Payment Methods</div>
+      <div class="panel-desc">Configure payment options for customers</div>
+    </div>
+    <!-- CRYPTO -->
+    <div class="card">
+      <div class="card-title">Crypto Payment</div>
+      <div class="toggle-wrap" style="margin-bottom:1.5rem;">
+        <label class="toggle"><input type="checkbox" id="crypto-enabled" checked><span class="toggle-slider"></span></label>
+        <span>Enable Crypto Payment</span>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="form-group">
+            <label class="form-label">QR Code Image URL</label>
+            <input class="form-input" id="crypto-qr" placeholder="https://... or upload below">
+          </div>
+          <div class="file-upload-area" onclick="document.getElementById('crypto-qr-file').click()" style="padding:1rem;">
+            <input type="file" id="crypto-qr-file" accept="image/*" onchange="uploadPaymentImg('crypto',this)">
+            <div class="upload-text">Upload QR Code</div>
+          </div>
+          <div id="crypto-qr-preview" style="margin-top:.5rem;"></div>
+        </div>
+        <div>
+          <div class="form-group">
+            <label class="form-label">Coin</label>
+            <input class="form-input" id="crypto-coin" placeholder="USDT">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Network</label>
+            <input class="form-input" id="crypto-network" placeholder="TRC20">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Wallet Address</label>
+            <input class="form-input" id="crypto-wallet" placeholder="TXxx...">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Instructions</label>
+        <textarea class="form-textarea" id="crypto-instructions"></textarea>
+      </div>
+      <button class="btn btn-gold" onclick="saveCryptoPayment()">Save Crypto Settings</button>
+    </div>
+
+    <!-- EASYPAISA -->
+    <div class="card">
+      <div class="card-title">EasyPaisa / Bank Payment</div>
+      <div class="toggle-wrap" style="margin-bottom:1.5rem;">
+        <label class="toggle"><input type="checkbox" id="ep-enabled" checked><span class="toggle-slider"></span></label>
+        <span>Enable EasyPaisa Payment</span>
+      </div>
+      <div class="grid-2">
+        <div>
+          <div class="form-group">
+            <label class="form-label">Display Image URL</label>
+            <input class="form-input" id="ep-image" placeholder="https://...">
+          </div>
+          <div class="file-upload-area" onclick="document.getElementById('ep-img-file').click()" style="padding:1rem;">
+            <input type="file" id="ep-img-file" accept="image/*" onchange="uploadPaymentImg('easypaisa',this)">
+            <div class="upload-text">Upload Image</div>
+          </div>
+          <div id="ep-img-preview" style="margin-top:.5rem;"></div>
+        </div>
+        <div>
+          <div class="form-group">
+            <label class="form-label">Account Name</label>
+            <input class="form-input" id="ep-name" placeholder="Store Name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">IBAN</label>
+            <input class="form-input" id="ep-iban" placeholder="PK00XXXX...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile Number</label>
+            <input class="form-input" id="ep-mobile" placeholder="03001234567">
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Instructions</label>
+        <textarea class="form-textarea" id="ep-instructions"></textarea>
+      </div>
+      <button class="btn btn-gold" onclick="saveEasyPaisaPayment()">Save EasyPaisa Settings</button>
+    </div>
+
+    <!-- EXTRA FIELDS -->
+    <div class="card">
+      <div class="card-title">Custom Order Form Fields</div>
+      <div class="panel-desc" style="margin-bottom:1rem;">Add extra fields to the order submission form (in addition to Name, Email, Mobile, Screenshot)</div>
+      <div id="extra-fields-list"></div>
+      <button class="btn btn-outline" onclick="addExtraField()" style="margin-top:1rem;">+ Add Field</button>
+      <br><br>
+      <button class="btn btn-gold" onclick="saveExtraFields()">Save Extra Fields</button>
+    </div>
+  </div>
+
+  <!-- ORDERS SECTION -->
+  <div class="section-panel" id="section-orders">
+    <div class="panel-header">
+      <div class="panel-title">Orders</div>
+      <div class="panel-desc">Manage customer orders and payment submissions</div>
+    </div>
+    <div style="display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="filterOrders('all')" id="filter-all">All</button>
+      <button class="btn btn-outline" onclick="filterOrders('pending')" id="filter-pending">Pending</button>
+      <button class="btn btn-outline" onclick="filterOrders('accepted')" id="filter-accepted">Accepted</button>
+      <button class="btn btn-outline" onclick="filterOrders('rejected')" id="filter-rejected">Rejected</button>
+      <button class="btn btn-outline" onclick="loadData()" style="margin-left:auto;">↻ Refresh</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div id="orders-container" style="overflow-x:auto;">
+        <table class="orders-table" id="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Product</th>
+              <th>Customer</th>
+              <th>Payment</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════
+     MODALS
+══════════════════════════════════════════════════ -->
+
+<!-- Story Modal -->
+<div class="modal-overlay" id="story-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="story-modal-title">Add Story</div>
+      <button class="modal-close" onclick="closeModal('story-modal')">✕</button>
+    </div>
+    <input type="hidden" id="story-edit-id">
+    <div class="form-group">
+      <label class="form-label">Image URL</label>
+      <input class="form-input" id="story-img-url" placeholder="https://...">
+    </div>
+    <div class="form-group" style="text-align:center;color:var(--text-muted);font-size:.85rem;">— or —</div>
+    <div class="form-group">
+      <label class="form-label">Upload Image</label>
+      <div class="file-upload-area" onclick="document.getElementById('story-img-file').click()">
+        <input type="file" id="story-img-file" accept="image/*">
+        <div class="upload-text">Click to upload</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input class="form-input" id="story-title" placeholder="Story title">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Button Text</label>
+      <input class="form-input" id="story-btn-text" placeholder="View">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Button Link</label>
+      <input class="form-input" id="story-btn-link" placeholder="https://...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('story-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveStory()">Save Story</button>
+    </div>
+  </div>
+</div>
+
+<!-- Product Modal -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-header">
+      <div class="modal-title" id="product-modal-title">Add Product</div>
+      <button class="modal-close" onclick="closeModal('product-modal')">✕</button>
+    </div>
+    <input type="hidden" id="product-edit-id">
+    <div class="grid-2">
+      <div class="form-group">
+        <label class="form-label">Product Title</label>
+        <input class="form-input" id="prod-title" placeholder="Product name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="prod-category"></select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Image URL</label>
+      <input class="form-input" id="prod-img-url" placeholder="https://...">
+    </div>
+    <div class="file-upload-area" onclick="document.getElementById('prod-img-file').click()" style="margin-bottom:1.2rem;padding:1rem;">
+      <input type="file" id="prod-img-file" accept="image/*">
+      <div class="upload-text">Or upload product image</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Short Description</label>
+      <input class="form-input" id="prod-short-desc" placeholder="Brief tagline">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Full Description</label>
+      <textarea class="form-textarea" id="prod-desc" placeholder="Detailed description..."></textarea>
+    </div>
+    <div class="grid-3">
+      <div class="form-group">
+        <label class="form-label">Price (USD)</label>
+        <input class="form-input" id="prod-price" type="number" min="0" step="0.01" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Discount (%)</label>
+        <input class="form-input" id="prod-discount" type="number" min="0" max="100" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Units Sold</label>
+        <input class="form-input" id="prod-sold" type="number" min="0" placeholder="0">
+      </div>
+    </div>
+    <div class="card-title" style="margin-bottom:.75rem;">Custom Buttons</div>
+    <div id="prod-custom-buttons"></div>
+    <button class="btn btn-outline btn-sm" onclick="addProductBtn()">+ Add Button</button>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('product-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- Order Detail Modal -->
+<div class="modal-overlay" id="order-detail-modal">
+  <div class="modal" style="max-width:600px;">
+    <div class="modal-header">
+      <div class="modal-title">Order Details</div>
+      <button class="modal-close" onclick="closeModal('order-detail-modal')">✕</button>
+    </div>
+    <div id="order-detail-content"></div>
+    <div class="form-group" style="margin-top:1.5rem;">
+      <label class="form-label">Admin Note</label>
+      <textarea class="form-textarea" id="order-admin-note" placeholder="Optional note to customer..." style="min-height:70px;"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" onclick="updateOrderStatus('rejected')">Reject</button>
+      <button class="btn btn-success btn-sm" onclick="updateOrderStatus('accepted')">Accept</button>
+      <button class="btn btn-outline btn-sm" onclick="closeModal('order-detail-modal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change PIN Modal -->
+<div class="modal-overlay" id="change-pin-modal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title">Change Admin PIN</div>
+      <button class="modal-close" onclick="closeModal('change-pin-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Current PIN</label>
+      <input class="form-input" type="password" id="current-pin" placeholder="••••">
+    </div>
+    <div class="form-group">
+      <label class="form-label">New PIN</label>
+      <input class="form-input" type="password" id="new-pin" placeholder="New PIN (min 4 digits)">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirm New PIN</label>
+      <input class="form-input" type="password" id="confirm-pin" placeholder="Confirm new PIN">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('change-pin-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="changePIN()">Change PIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- Header Button Modal -->
+<div class="modal-overlay" id="header-btn-modal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title">Header Button</div>
+      <button class="modal-close" onclick="closeModal('header-btn-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Button Text</label>
+      <input class="form-input" id="hbtn-text" placeholder="e.g. Sale">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Button Link</label>
+      <input class="form-input" id="hbtn-link" placeholder="https://...">
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('header-btn-modal')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveHeaderBtn()">Add Button</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'save_data.php';
+let storeData = {};
+let currentOrderId = null;
+let currentFilter = 'all';
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+async function api(action, body={}) {
+  const res = await fetch(API, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({action, ...body})
+  });
+  return res.json();
+}
+
+function toast(msg, type='success') {
+  const el = document.createElement('div');
+  el.className = `alert alert-${type}`;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(), 3500);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// ── PIN ────────────────────────────────────────────────────────────────────
+document.getElementById('pin-input').addEventListener('keydown', e=>{
+  if(e.key==='Enter') verifyPin();
+});
+
+async function verifyPin() {
+  const pin = document.getElementById('pin-input').value;
+  if(!pin) return;
+  const res = await api('verify_pin', {pin});
+  if(res.success) {
+    document.getElementById('pin-screen').style.display='none';
+    document.getElementById('admin-header').style.display='flex';
+    document.getElementById('admin-main').style.display='block';
+    loadData();
+  } else {
+    document.getElementById('pin-error').textContent = '❌ Incorrect PIN. Please try again.';
+    document.getElementById('pin-input').classList.add('shake');
+    document.getElementById('pin-input').value='';
+    setTimeout(()=>document.getElementById('pin-input').classList.remove('shake'), 500);
+  }
+}
+
+// ── SIDEBAR ────────────────────────────────────────────────────────────────
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
+}
+function showSection(name) {
+  document.querySelectorAll('.section-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  document.querySelector(`[data-section="${name}"]`).classList.add('active');
+  closeSidebar();
+}
+
+// ── LOAD DATA ──────────────────────────────────────────────────────────────
+async function loadData() {
+  const res = await fetch(API+'?action=get_data');
+  const json = await res.json();
+  if(!json.success) return;
+  storeData = json.data;
+  renderAll();
+}
+
+function renderAll() {
+  renderHeaderSection();
+  renderWelcomeSection();
+  renderHeroList();
+  renderStoriesList();
+  renderCategoriesList();
+  renderProductsList();
+  renderPaymentSection();
+  renderOrdersTable();
+}
+
+// ── HEADER ─────────────────────────────────────────────────────────────────
+function renderHeaderSection() {
+  const s = storeData.settings;
+  document.getElementById('logo-text').value = s.logo_text||'';
+  if(s.logo_image) {
+    document.getElementById('logo-preview').innerHTML=`<img src="${s.logo_image}" style="max-height:60px;border-radius:6px;">`;
+  }
+  const list = document.getElementById('header-buttons-list');
+  list.innerHTML = '';
+  (s.header_buttons||[]).forEach((b,i)=>{
+    list.innerHTML+=`<div class="item-card">
+      <div class="item-info"><div class="item-name">${b.text}</div><div class="item-meta">${b.link}</div></div>
+      <div class="item-actions">
+        <button class="btn btn-danger btn-sm" onclick="deleteHeaderBtn(${i})">Delete</button>
+      </div></div>`;
+  });
+}
+
+function openAddHeaderBtn() { openModal('header-btn-modal'); }
+async function saveHeaderBtn() {
+  const text = document.getElementById('hbtn-text').value.trim();
+  const link = document.getElementById('hbtn-link').value.trim();
+  if(!text) return toast('Button text required','error');
+  storeData.settings.header_buttons = storeData.settings.header_buttons||[];
+  storeData.settings.header_buttons.push({text,link});
+  const res = await api('save_settings',{settings:{header_buttons:storeData.settings.header_buttons}});
+  if(res.success){toast('Button added');closeModal('header-btn-modal');renderHeaderSection();}
+}
+async function deleteHeaderBtn(i) {
+  storeData.settings.header_buttons.splice(i,1);
+  await api('save_settings',{settings:{header_buttons:storeData.settings.header_buttons}});
+  toast('Button removed'); renderHeaderSection();
+}
+
+async function uploadLogo(input) {
+  const file = input.files[0]; if(!file) return;
+  const fd = new FormData();
+  fd.append('action','upload_logo'); fd.append('logo',file);
+  const res = await (await fetch(API,{method:'POST',body:fd})).json();
+  if(res.success){
+    storeData.settings.logo_image = res.path;
+    document.getElementById('logo-preview').innerHTML=`<img src="${res.path}" style="max-height:60px;border-radius:6px;">`;
+    toast('Logo uploaded');
+  }
+}
+
+async function saveBranding() {
+  const logoText = document.getElementById('logo-text').value.trim();
+  const res = await api('save_settings',{settings:{logo_text:logoText}});
+  if(res.success) toast('Branding saved');
+}
+
+// ── WELCOME ─────────────────────────────────────────────────────────────────
+function renderWelcomeSection() {
+  const w = storeData.welcome_popup||{};
+  document.getElementById('welcome-enabled').checked = !!w.enabled;
+  document.getElementById('welcome-title').value = w.title||'';
+  document.getElementById('welcome-message').value = w.message||'';
+  const list = document.getElementById('welcome-buttons-list');
+  list.innerHTML='';
+  (w.buttons||[]).forEach((b,i)=>{
+    list.innerHTML+=`<div style="display:flex;gap:.5rem;margin-bottom:.5rem;">
+      <input class="form-input" value="${b.text}" onchange="updateWelcomeBtn(${i},'text',this.value)" placeholder="Text">
+      <input class="form-input" value="${b.link}" onchange="updateWelcomeBtn(${i},'link',this.value)" placeholder="Link">
+      <button class="btn btn-danger btn-sm" onclick="deleteWelcomeBtn(${i})">✕</button></div>`;
+  });
+}
+function addWelcomeBtn() {
+  storeData.welcome_popup.buttons = storeData.welcome_popup.buttons||[];
+  storeData.welcome_popup.buttons.push({text:'Button',link:''});
+  renderWelcomeSection();
+}
+function updateWelcomeBtn(i,key,val){storeData.welcome_popup.buttons[i][key]=val;}
+function deleteWelcomeBtn(i){storeData.welcome_popup.buttons.splice(i,1);renderWelcomeSection();}
+async function saveWelcomePopup() {
+  const data = {
+    enabled:document.getElementById('welcome-enabled').checked,
+    title:document.getElementById('welcome-title').value,
+    message:document.getElementById('welcome-message').value,
+    buttons:storeData.welcome_popup.buttons||[]
+  };
+  const res = await api('save_settings',{welcome_popup:data});
+  if(res.success){storeData.welcome_popup=data;toast('Welcome popup saved');}
+}
+
+// ── HERO ───────────────────────────────────────────────────────────────────
+async function addHeroImage() {
+  const url = document.getElementById('hero-url').value.trim();
+  const caption = document.getElementById('hero-caption').value.trim();
+  const file = document.getElementById('hero-file').files[0];
+
+  if(file) {
+    const fd = new FormData();
+    fd.append('action','add_hero');
+    fd.append('hero_image',file);
+    fd.append('caption',caption);
+    const res = await (await fetch(API,{method:'POST',body:fd})).json();
+    if(res.success){toast('Hero image added');loadData();}
+  } else if(url) {
+    const res = await api('add_hero',{url,caption});
+    if(res.success){
+      document.getElementById('hero-url').value='';
+      document.getElementById('hero-caption').value='';
+      toast('Hero image added'); loadData();
+    }
+  } else toast('Please provide an image URL or upload a file','error');
+}
+
+function renderHeroList() {
+  const list = document.getElementById('hero-list');
+  list.innerHTML='';
+  (storeData.hero_images||[]).forEach(h=>{
+    list.innerHTML+=`<div class="hero-item">
+      <img src="${h.url}" alt="${h.caption}" onerror="this.src='https://via.placeholder.com/400x225?text=Image'">
+      <div class="hero-item-overlay">
+        <span class="hero-item-caption">${h.caption||'No caption'}</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteHero('${h.id}')">Delete</button>
+      </div></div>`;
+  });
+}
+
+async function deleteHero(id) {
+  if(!confirm('Delete this hero image?')) return;
+  const res = await api('delete_hero',{id});
+  if(res.success){toast('Image deleted');loadData();}
+}
+
+// ── STORIES ────────────────────────────────────────────────────────────────
+function renderStoriesList() {
+  const list = document.getElementById('stories-list');
+  list.innerHTML='';
+  (storeData.stories||[]).forEach(s=>{
+    list.innerHTML+=`<div class="item-card">
+      <img class="item-thumb" src="${s.image}" alt="${s.title}" onerror="this.src='https://via.placeholder.com/60?text=S'">
+      <div class="item-info">
+        <div class="item-name">${s.title}</div>
+        <div class="item-meta">Btn: ${s.button_text||'—'} · Link: ${s.button_link||'—'}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-outline btn-sm" onclick="openStoryModal('${s.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteStory('${s.id}')">Del</button>
+      </div></div>`;
+  });
+}
+
+function openStoryModal(id=null) {
+  document.getElementById('story-edit-id').value = id||'';
+  document.getElementById('story-modal-title').textContent = id ? 'Edit Story' : 'Add Story';
+  if(id) {
+    const s = storeData.stories.find(x=>x.id===id);
+    if(s){
+      document.getElementById('story-img-url').value=s.image||'';
+      document.getElementById('story-title').value=s.title||'';
+      document.getElementById('story-btn-text').value=s.button_text||'';
+      document.getElementById('story-btn-link').value=s.button_link||'';
+    }
+  } else {
+    ['story-img-url','story-title','story-btn-text','story-btn-link'].forEach(id=>document.getElementById(id).value='');
+  }
+  openModal('story-modal');
+}
+
+async function saveStory() {
+  const editId = document.getElementById('story-edit-id').value;
+  const imgUrl = document.getElementById('story-img-url').value.trim();
+  const file = document.getElementById('story-img-file').files[0];
+  const title = document.getElementById('story-title').value.trim();
+  const btnText = document.getElementById('story-btn-text').value.trim()||'View';
+  const btnLink = document.getElementById('story-btn-link').value.trim();
+
+  if(editId) {
+    const res = await api('update_story',{id:editId, image:imgUrl, title, button_text:btnText, button_link:btnLink});
+    if(res.success){toast('Story updated');closeModal('story-modal');loadData();}
+  } else {
+    if(file) {
+      const fd=new FormData();
+      fd.append('action','add_story');fd.append('story_image',file);
+      fd.append('title',title);fd.append('button_text',btnText);fd.append('button_link',btnLink);
+      const res=await(await fetch(API,{method:'POST',body:fd})).json();
+      if(res.success){toast('Story added');closeModal('story-modal');loadData();}
+    } else {
+      const fd=new FormData();
+      fd.append('action','add_story');fd.append('image_url',imgUrl);
+      fd.append('title',title);fd.append('button_text',btnText);fd.append('button_link',btnLink);
+      const res=await(await fetch(API,{method:'POST',body:fd})).json();
+      if(res.success){toast('Story added');closeModal('story-modal');loadData();}
+    }
+  }
+}
+
+async function deleteStory(id) {
+  if(!confirm('Delete this story?')) return;
+  const res = await api('delete_story',{id});
+  if(res.success){toast('Story deleted');loadData();}
+}
+
+// ── CATEGORIES ─────────────────────────────────────────────────────────────
+function renderCategoriesList() {
+  const list = document.getElementById('categories-list');
+  list.innerHTML='';
+  (storeData.categories||[]).forEach(c=>{
+    list.innerHTML+=`<div class="item-card">
+      <div style="font-size:2rem;flex-shrink:0;">${c.icon}</div>
+      <div class="item-info"><div class="item-name">${c.name}</div></div>
+      <div class="item-actions">
+        <button class="btn btn-danger btn-sm" onclick="deleteCat('${c.id}')">Delete</button>
+      </div></div>`;
+  });
+  // Update product category dropdown
+  const sel = document.getElementById('prod-category');
+  if(sel){
+    sel.innerHTML='<option value="">Select category</option>'+
+      (storeData.categories||[]).map(c=>`<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
+  }
+}
+
+async function addCategory() {
+  const name = document.getElementById('cat-name').value.trim();
+  const icon = document.getElementById('cat-icon').value.trim()||'🛍️';
+  if(!name) return toast('Category name required','error');
+  const res = await api('add_category',{name,icon});
+  if(res.success){
+    document.getElementById('cat-name').value='';
+    document.getElementById('cat-icon').value='';
+    toast('Category added'); loadData();
+  }
+}
+
+async function deleteCat(id) {
+  if(!confirm('Delete this category?')) return;
+  const res = await api('delete_category',{id});
+  if(res.success){toast('Category deleted');loadData();}
+}
+
+// ── PRODUCTS ───────────────────────────────────────────────────────────────
+function renderProductsList() {
+  const list = document.getElementById('products-list');
+  list.innerHTML='';
+  (storeData.products||[]).forEach(p=>{
+    const discountedPrice = p.discount>0 ? (p.price_usd*(1-p.discount/100)).toFixed(2) : null;
+    list.innerHTML+=`<div class="item-card">
+      <img class="item-thumb" src="${p.image}" alt="${p.title}" onerror="this.src='https://via.placeholder.com/60?text=P'">
+      <div class="item-info">
+        <div class="item-name">${p.title}</div>
+        <div class="item-meta">$${p.price_usd}${discountedPrice?` → $${discountedPrice}`:''} · ${p.category||'—'} · Sold: ${p.sold||0}</div>
+      </div>
+      <div class="item-actions">
+        <button class="btn btn-outline btn-sm" onclick="openProductModal('${p.id}')">Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProduct('${p.id}')">Del</button>
+      </div></div>`;
+  });
+}
+
+let productBtns = [];
+function openProductModal(id=null) {
+  document.getElementById('product-edit-id').value=id||'';
+  document.getElementById('product-modal-title').textContent=id?'Edit Product':'Add Product';
+  productBtns=[];
+  if(id){
+    const p=storeData.products.find(x=>x.id===id);
+    if(p){
+      document.getElementById('prod-title').value=p.title||'';
+      document.getElementById('prod-img-url').value=p.image||'';
+      document.getElementById('prod-short-desc').value=p.short_description||'';
+      document.getElementById('prod-desc').value=p.description||'';
+      document.getElementById('prod-price').value=p.price_usd||'';
+      document.getElementById('prod-discount').value=p.discount||'';
+      document.getElementById('prod-sold').value=p.sold||'';
+      document.getElementById('prod-category').value=p.category||'';
+      productBtns=[...(p.custom_buttons||[])];
+    }
+  } else {
+    ['prod-title','prod-img-url','prod-short-desc','prod-desc','prod-price','prod-discount','prod-sold'].forEach(x=>document.getElementById(x).value='');
+  }
+  renderProductBtns();
+  openModal('product-modal');
+}
+
+function renderProductBtns() {
+  const c=document.getElementById('prod-custom-buttons');
+  c.innerHTML='';
+  productBtns.forEach((b,i)=>{
+    c.innerHTML+=`<div style="display:flex;gap:.5rem;margin-bottom:.5rem;">
+      <input class="form-input" value="${b.text}" onchange="productBtns[${i}].text=this.value" placeholder="Label">
+      <input class="form-input" value="${b.link}" onchange="productBtns[${i}].link=this.value" placeholder="Link">
+      <button class="btn btn-danger btn-sm" onclick="productBtns.splice(${i},1);renderProductBtns()">✕</button></div>`;
+  });
+}
+function addProductBtn(){productBtns.push({text:'',link:''});renderProductBtns();}
+
+async function saveProduct() {
+  const editId=document.getElementById('product-edit-id').value;
+  const file=document.getElementById('prod-img-file').files[0];
+  const title=document.getElementById('prod-title').value.trim();
+  if(!title) return toast('Product title required','error');
+
+  const productData={
+    title,
+    short_description:document.getElementById('prod-short-desc').value,
+    description:document.getElementById('prod-desc').value,
+    image:document.getElementById('prod-img-url').value,
+    price_usd:parseFloat(document.getElementById('prod-price').value)||0,
+    discount:parseFloat(document.getElementById('prod-discount').value)||0,
+    sold:parseInt(document.getElementById('prod-sold').value)||0,
+    category:document.getElementById('prod-category').value,
+    custom_buttons:productBtns
+  };
+
+  if(editId) {
+    const res=await api('update_product',{id:editId,...productData});
+    if(res.success){toast('Product updated');closeModal('product-modal');loadData();}
+  } else {
+    if(file){
+      const fd=new FormData();
+      fd.append('action','add_product');
+      Object.entries(productData).forEach(([k,v])=>fd.append(k,typeof v==='object'?JSON.stringify(v):v));
+      fd.append('product_image',file);
+      const res=await(await fetch(API,{method:'POST',body:fd})).json();
+      if(res.success){toast('Product added');closeModal('product-modal');loadData();}
+    } else {
+      const fd=new FormData();
+      fd.append('action','add_product');
+      Object.entries(productData).forEach(([k,v])=>fd.append(k,typeof v==='object'?JSON.stringify(v):v));
+      const res=await(await fetch(API,{method:'POST',body:fd})).json();
+      if(res.success){toast('Product added');closeModal('product-modal');loadData();}
+    }
+  }
+}
+
+async function deleteProduct(id) {
+  if(!confirm('Delete this product?')) return;
+  const res=await api('delete_product',{id});
+  if(res.success){toast('Product deleted');loadData();}
+}
+
+// ── PAYMENT ────────────────────────────────────────────────────────────────
+function renderPaymentSection() {
+  const p=storeData.payment||{};
+  const c=p.crypto||{};
+  const e=p.easypaisa||{};
+
+  document.getElementById('crypto-enabled').checked=!!c.enabled;
+  document.getElementById('crypto-qr').value=c.qr_image||'';
+  document.getElementById('crypto-coin').value=c.coin||'USDT';
+  document.getElementById('crypto-network').value=c.network||'TRC20';
+  document.getElementById('crypto-wallet').value=c.wallet_address||'';
+  document.getElementById('crypto-instructions').value=c.instructions||'';
+  if(c.qr_image) document.getElementById('crypto-qr-preview').innerHTML=`<img src="${c.qr_image}" style="height:80px;border-radius:6px;">`;
+
+  document.getElementById('ep-enabled').checked=!!e.enabled;
+  document.getElementById('ep-image').value=e.image||'';
+  document.getElementById('ep-name').value=e.account_name||'';
+  document.getElementById('ep-iban').value=e.iban||'';
+  document.getElementById('ep-mobile').value=e.account_number||'';
+  document.getElementById('ep-instructions').value=e.instructions||'';
+  if(e.image) document.getElementById('ep-img-preview').innerHTML=`<img src="${e.image}" style="height:80px;border-radius:6px;">`;
+
+  const ef=document.getElementById('extra-fields-list');
+  ef.innerHTML='';
+  (p.extra_fields||[]).forEach((f,i)=>{
+    ef.innerHTML+=`<div style="display:flex;gap:.5rem;margin-bottom:.5rem;align-items:center;">
+      <input class="form-input" value="${f.label}" onchange="storeData.payment.extra_fields[${i}].label=this.value" placeholder="Field Label">
+      <select class="form-select" style="width:120px;" onchange="storeData.payment.extra_fields[${i}].type=this.value">
+        <option value="text" ${f.type==='text'?'selected':''}>Text</option>
+        <option value="email" ${f.type==='email'?'selected':''}>Email</option>
+        <option value="tel" ${f.type==='tel'?'selected':''}>Phone</option>
+        <option value="textarea" ${f.type==='textarea'?'selected':''}>Textarea</option>
+      </select>
+      <button class="btn btn-danger btn-sm" onclick="storeData.payment.extra_fields.splice(${i},1);renderPaymentSection()">✕</button></div>`;
+  });
+}
+
+async function saveCryptoPayment() {
+  const res=await api('save_payment',{crypto:{
+    enabled:document.getElementById('crypto-enabled').checked,
+    qr_image:document.getElementById('crypto-qr').value,
+    coin:document.getElementById('crypto-coin').value,
+    network:document.getElementById('crypto-network').value,
+    wallet_address:document.getElementById('crypto-wallet').value,
+    instructions:document.getElementById('crypto-instructions').value
+  }});
+  if(res.success) toast('Crypto payment saved');
+}
+async function saveEasyPaisaPayment() {
+  const res=await api('save_payment',{easypaisa:{
+    enabled:document.getElementById('ep-enabled').checked,
+    image:document.getElementById('ep-image').value,
+    account_name:document.getElementById('ep-name').value,
+    iban:document.getElementById('ep-iban').value,
+    account_number:document.getElementById('ep-mobile').value,
+    instructions:document.getElementById('ep-instructions').value
+  }});
+  if(res.success) toast('EasyPaisa payment saved');
+}
+function addExtraField() {
+  storeData.payment.extra_fields=storeData.payment.extra_fields||[];
+  storeData.payment.extra_fields.push({label:'Field Name',type:'text',required:false});
+  renderPaymentSection();
+}
+async function saveExtraFields() {
+  const res=await api('save_payment',{extra_fields:storeData.payment.extra_fields||[]});
+  if(res.success) toast('Extra fields saved');
+}
+async function uploadPaymentImg(type,input) {
+  const file=input.files[0]; if(!file) return;
+  const fd=new FormData();
+  fd.append('action','upload_payment_image');fd.append('type',type);fd.append('payment_image',file);
+  const res=await(await fetch(API,{method:'POST',body:fd})).json();
+  if(res.success){
+    const previewId=type==='crypto'?'crypto-qr-preview':'ep-img-preview';
+    document.getElementById(previewId).innerHTML=`<img src="${res.path}" style="height:80px;border-radius:6px;">`;
+    toast('Image uploaded');
+  }
+}
+
+// ── ORDERS ─────────────────────────────────────────────────────────────────
+function renderOrdersTable() {
+  const orders=(storeData.orders||[]);
+  const filtered=currentFilter==='all' ? orders : orders.filter(o=>o.status===currentFilter);
+  const pending=orders.filter(o=>o.status==='pending').length;
+  const badge=document.getElementById('pending-badge');
+  badge.textContent=pending; badge.style.display=pending?'inline-block':'none';
+
+  const tbody=document.getElementById('orders-tbody');
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem;">No orders found</td></tr>`;
+    return;
+  }
+  tbody.innerHTML=filtered.map(o=>{
+    const date=new Date((o.created_at||0)*1000).toLocaleDateString();
+    return `<tr>
+      <td><span style="font-family:monospace;font-size:.8rem;color:var(--text-muted);">${o.id.slice(-8)}</span></td>
+      <td>${o.product_title||'—'}</td>
+      <td>${o.full_name||'—'}</td>
+      <td>${o.payment_method||'—'}</td>
+      <td>${o.product_price||'—'}</td>
+      <td><span class="status-badge status-${o.status}">${o.status}</span></td>
+      <td>${date}</td>
+      <td><div style="display:flex;gap:.4rem;">
+        <button class="btn btn-outline btn-sm" onclick="openOrderDetail('${o.id}')">View</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteOrder('${o.id}')">Del</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterOrders(status) {
+  currentFilter=status;
+  document.querySelectorAll('[id^="filter-"]').forEach(b=>b.classList.remove('btn-gold'));
+  document.getElementById('filter-'+status).classList.add('btn-gold');
+  renderOrdersTable();
+}
+
+function openOrderDetail(id) {
+  const o=storeData.orders.find(x=>x.id===id);
+  if(!o) return;
+  currentOrderId=id;
+  const date=new Date((o.created_at||0)*1000).toLocaleString();
+  const fields=[
+    ['Order ID',o.id],['Status',`<span class="status-badge status-${o.status}">${o.status}</span>`],
+    ['Product',o.product_title],['Amount',o.product_price],['Payment',o.payment_method],
+    ['Customer',o.full_name],['Email',o.email],['Mobile',o.mobile],['Date',date],
+    ['Admin Note',o.admin_note||'—']
+  ];
+  let html=fields.map(([l,v])=>`<div class="order-detail-row"><div class="order-detail-label">${l}</div><div class="order-detail-value">${v||'—'}</div></div>`).join('');
+  if(o.screenshot) html+=`<div style="margin-top:1rem;"><img src="${o.screenshot}" style="max-width:100%;border-radius:8px;border:1px solid var(--border);" alt="Screenshot"></div>`;
+  document.getElementById('order-detail-content').innerHTML=html;
+  document.getElementById('order-admin-note').value=o.admin_note||'';
+  openModal('order-detail-modal');
+}
+
+async function updateOrderStatus(status) {
+  if(!currentOrderId) return;
+  const note=document.getElementById('order-admin-note').value;
+  const res=await api('update_order_status',{id:currentOrderId,status,note});
+  if(res.success){toast(`Order ${status}`);closeModal('order-detail-modal');loadData();}
+}
+
+async function deleteOrder(id) {
+  if(!confirm('Delete this order permanently?')) return;
+  const res=await api('delete_order',{id});
+  if(res.success){toast('Order deleted');loadData();}
+}
+
+// ── CHANGE PIN ─────────────────────────────────────────────────────────────
+function openChangePinModal(){openModal('change-pin-modal');}
+async function changePIN() {
+  const cur=document.getElementById('current-pin').value;
+  const nw=document.getElementById('new-pin').value;
+  const conf=document.getElementById('confirm-pin').value;
+  if(nw!==conf) return toast('New PINs do not match','error');
+  const res=await api('change_pin',{current_pin:cur,new_pin:nw});
+  if(res.success){toast('PIN changed successfully');closeModal('change-pin-modal');['current-pin','new-pin','confirm-pin'].forEach(id=>document.getElementById(id).value='');}
+  else toast(res.message,'error');
+}
+
+// ── AUTO REFRESH ───────────────────────────────────────────────────────────
+setInterval(()=>{
+  if(document.getElementById('admin-main').style.display!=='none'){
+    fetch(API+'?action=get_data').then(r=>r.json()).then(json=>{
+      if(json.success){storeData=json.data;renderOrdersTable();}
+    });
+  }
+}, 15000);
+</script>
+</body>
+</html>
